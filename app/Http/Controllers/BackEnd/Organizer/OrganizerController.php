@@ -141,7 +141,6 @@ class OrganizerController extends Controller
       'email' => 'required|email|unique:organizers',
       'password' => 'required|confirmed|min:6',
     ];
-
     $info = Basic::select('google_recaptcha_status')->first();
     if ($info->google_recaptcha_status == 1) {
       $rules['g-recaptcha-response'] = 'required|captcha';
@@ -158,6 +157,8 @@ class OrganizerController extends Controller
 
 
     if ($validator->fails()) {
+
+
       return redirect()->back()->withErrors($validator->errors());
     }
 
