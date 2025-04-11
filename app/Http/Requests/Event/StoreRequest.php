@@ -28,7 +28,7 @@ class StoreRequest extends FormRequest
   {
     $request = $this->request->all();
     $ruleArray = [
-      'slider_images' => 'required',
+      'slider_images' => 'nullable',
       'thumbnail' => [
         'required',
         new ImageMimeTypeRule()

@@ -18,6 +18,7 @@ class TicketController extends Controller
 {
   public function index(Request $request)
   {
+    session()->forget('redirect_url');
     $languages = Language::all();
 
     $language = Language::where('code', $request->language)->firstOrFail();
@@ -35,6 +36,7 @@ class TicketController extends Controller
   //create
   public function create(Request $request)
   {
+    session()->forget('redirect_url');
     $information = [];
     $languages = Language::get();
     $language = Language::where('code', $request->language)->firstOrFail();

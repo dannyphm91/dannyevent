@@ -570,9 +570,17 @@
   @php
     $languages = App\Models\Language::get();
   @endphp
-  <script>
-    let languages = "{{ $languages }}";
-  </script>
+  @php
+    $session = session('redirect_url');
+  @endphp
+  @if ($session)
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        let url = "{{ $session }}".replace(/&amp;/g, '&');
+        window.location.href = url;
+      });
+    </script>
+  @endif
   <script type="text/javascript" src="{{ asset('assets/admin/js/admin-partial.js') }}"></script>
   <script src="{{ asset('assets/admin/js/admin_dropzone.js') }}"></script>
 @endsection

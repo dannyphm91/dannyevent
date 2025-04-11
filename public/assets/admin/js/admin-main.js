@@ -217,7 +217,11 @@ $(function ($) {
         });
 
         if (data.status == 'success') {
-          location.reload();
+          if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+          } else {
+            location.reload();
+          }
         }
       },
       error: function (error) {
@@ -278,7 +282,11 @@ $(function ($) {
         });
 
         if (data.status == 'success') {
-          location.reload();
+          if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+          } else {
+            location.reload();
+          }
         }
       },
       error: function (error) {
@@ -336,7 +344,11 @@ $(function ($) {
         });
 
         if (data.status == 'success') {
-          location.reload();
+          if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+          } else {
+            location.reload();
+          }
         }
       },
       error: function (error) {
@@ -472,7 +484,11 @@ $(function ($) {
         });
 
         if (data.status == 'success') {
-          location.reload();
+          if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+          } else {
+            location.reload();
+          }
         }
       },
       error: function (error) {
@@ -533,7 +549,11 @@ $(function ($) {
         });
 
         if (data.status == 'success') {
-          location.reload();
+          if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+          } else {
+            location.reload();
+          }
         }
       },
       error: function (error) {
@@ -1062,7 +1082,11 @@ function storeLesson(event, moduleId) {
       });
 
       if (data.status == 'success') {
-        location.reload();
+        if (data.redirect_url) {
+          window.location.href = data.redirect_url;
+        } else {
+          location.reload();
+        }
       }
     },
     error: function (error) {
@@ -1125,7 +1149,11 @@ $("#modalSubmit").on('click', function (e) {
       });
 
       if (data.status == 'success') {
-        location.reload();
+        if (data.redirect_url) {
+          window.location.href = data.redirect_url;
+        } else {
+          location.reload();
+        }
       }
     },
     error: function (error) {

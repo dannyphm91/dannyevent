@@ -55,7 +55,11 @@ $(document).ready(function () {
         $('.request-loader').removeClass('show');
 
         if (data.status == 'success') {
-          location.reload();
+          if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+          } else {
+            location.reload();
+          }
         }
       },
       error: function (error) {
@@ -97,7 +101,11 @@ $(document).ready(function () {
         $('.request-loader').removeClass('show');
 
         if (data.status == 'success') {
-          location.reload();
+          if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+          } else {
+            location.reload();
+          }
         }
       },
       error: function (error) {
@@ -139,6 +147,7 @@ $(document).ready(function () {
         $('.request-loader').removeClass('show');
 
         if (data.status == 'success') {
+          if (data.redirect_url) {
           location.reload();
         }
       },
@@ -183,7 +192,11 @@ $(document).ready(function () {
           $('.request-loader').removeClass('show');
 
           if (data.status == 'success') {
-            location.reload();
+            if (data.redirect_url) {
+              window.location.href = data.redirect_url;
+            } else {
+              location.reload();
+            }
           }
         },
         error: function (error) {
@@ -219,7 +232,11 @@ $(document).ready(function () {
           $('.request-loader').removeClass('show');
 
           if (data.status == 'success') {
-            location.reload();
+            if (data.redirect_url) {
+              window.location.href = data.redirect_url;
+            } else {
+              location.reload();
+            }
           }
         },
         error: function (error) {

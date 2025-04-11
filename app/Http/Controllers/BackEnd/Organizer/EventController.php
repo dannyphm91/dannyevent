@@ -19,6 +19,7 @@ use App\Models\State;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Mews\Purifier\Facades\Purifier;
@@ -28,6 +29,8 @@ class EventController extends Controller
   //index
   public function index(Request $request)
   {
+        session()->forget('redirect_url');
+
     $information['langs'] = Language::all();
 
     $language = Language::where('code', $request->language)->firstOrFail();
@@ -91,7 +94,6 @@ class EventController extends Controller
     $allowedExts = array('jpg', 'png', 'jpeg');
     $rules = [
       'file' => [
-        'dimensions:width=1170,height=570',
         function ($attribute, $value, $fail) use ($img, $allowedExts) {
           $ext = $img->getClientOriginalExtension();
           if (!in_array($ext, $allowedExts)) {
@@ -154,7 +156,7 @@ class EventController extends Controller
       $in['f_price'] = $request->price;
       $in['end_date_time'] = Carbon::parse($request->end_date . ' ' . $request->end_time);
       $event = Event::create($in);
-
+      session()->put('event_id', $event->id);
       if ($request->date_type == 'multiple') {
         $i = 1;
         foreach ($request->m_start_date as $key => $date) {
@@ -202,7 +204,7 @@ class EventController extends Controller
 
       $slders = $request->slider_images;
 
-      foreach ($slders as $key => $id) {
+      foreach (!empty($slders) ? $slders : [] as $key => $id) {
         $event_image = EventImage::where('id', $id)->first();
         if ($event_image) {
           $event_image->event_id = $event->id;
@@ -233,8 +235,15 @@ class EventController extends Controller
       }
     });
 
-    Session::flash('success', 'Added Successfully');
-    return response()->json(['status' => 'success'], 200);
+    if ($request->event_type == 'venue') {
+      $url = route('organizer.event.ticket', ['language' => 'en', 'event_id' => session()->get('event_id'), 'event_type' => 'venue']);
+      session()->put('redirect_url', $url);
+      Session::flash('success', 'Added Successfully');
+      return response()->json(['status' => 'success'], 200);
+    } else {
+      Session::flash('success', 'Added Successfully');
+      return response()->json(['status' => 'success'], 200);
+    }
   }
   /**
    * Update status (active/DeActive) of a specified resource.
@@ -289,6 +298,7 @@ class EventController extends Controller
 
   public function edit($id)
   {
+
     $event = Event::with('ticket')->where('id', $id)->firstOrFail();
     if (Auth::guard('organizer')->user()->id != $event->organizer_id) {
       return back();
@@ -343,6 +353,7 @@ class EventController extends Controller
     $in = $request->all();
 
     $event = Event::where('id', $request->event_id)->first();
+    $event_id = $event->id;
     if ($request->hasFile('thumbnail')) {
       @unlink(public_path('assets/admin/img/event/thumbnail/') . $event->thumbnail);
       $filename = time() . '.' . $img->getClientOriginalExtension();
@@ -399,60 +410,20 @@ class EventController extends Controller
       ]);
     }
 
-    $event = Event::where('id', $event->id)->first();
-
-    if ($request->date_type == 'multiple') {
-      $i = 1;
-      foreach ($request->m_start_date as $key => $date) {
-        $start = Carbon::parse($date . $request->m_start_time[$key]);
-        $end =  Carbon::parse($request->m_end_date[$key] . $request->m_end_time[$key]);
-        $diffent = DurationCalulate($start, $end);
-
-        if (!empty($request->date_ids[$key])) {
-          $event_date = EventDates::where('id', $request->date_ids[$key])->first();
-          $event_date->start_date = $date;
-          $event_date->start_time = $request->m_start_time[$key];
-          $event_date->end_date = $request->m_end_date[$key];
-          $event_date->end_time = $request->m_end_time[$key];
-          $event_date->duration = $diffent;
-          $event_date->start_date_time = $start;
-          $event_date->end_date_time = $end;
-          $event_date->save();
-        } else {
-          EventDates::create([
-            'event_id' => $event->id,
-            'start_date' => $date,
-            'start_time' => $request->m_start_time[$key],
-            'end_date' => $request->m_end_date[$key],
-            'end_time' => $request->m_end_time[$key],
-            'duration' => $diffent,
-            'start_date_time' => $start,
-            'end_date_time' => $end,
-          ]);
-        }
-        if ($i == 1) {
-          $event->update([
-            'duration' => $diffent
-          ]);
-        }
-        $i++;
-      }
-    }
-
-    if ($request->date_type == 'single') {
-      $in['end_date_time'] = Carbon::parse($request->end_date . ' ' . $request->end_time);
-      $in['duration'] = $diffent;
-    } else {
-      //update event date time
-      $event_date = EventDates::where('event_id', $event->id)->orderBy('end_date_time', 'desc')->first();
-
-      $in['end_date_time'] = $event_date->end_date_time;
-    }
-
     $event->update($in);
 
-    Session::flash('success', 'Updated Successfully');
-    return response()->json(['status' => 'success'], 200);
+    if ($request->event_type == 'venue') {
+        $url = route('organizer.event.ticket', ['language' => 'en', 'event_id' => $event_id, 'event_type' => 'venue']);
+        Session::flash('success', 'Update Successfully');
+        session()->put('redirect_url', $url);
+        return response()->json([
+            'status' => 'success',
+            'redirect_url' => $url
+        ]);
+    } else {
+        Session::flash('success', 'Update Successfully');
+        return response()->json(['status' => 'success'], 200);
+    }
   }
 
   /**
