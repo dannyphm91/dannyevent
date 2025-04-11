@@ -114,10 +114,10 @@
                 <div class=" mb-0" id="errpreimg">
 
                 </div>
-                <p class="text-warning">{{ __('Image Size') . ' : 1170x570' }}</p>
+                {{-- <p class="text-warning">{{ __('Image Size') . ' : 1170x570' }}</p> --}}
               </div>
 
-              <form id="eventForm" action="{{ route('organizer.event.update') }}" method="POST"
+              <form id="eventForm" action="{{ route('organizer.event.update') }}" method="POST" 
                 enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="event_id" value="{{ $event->id }}">
@@ -137,7 +137,7 @@
                       <input type="file" class="img-input" name="thumbnail">
                     </div>
                   </div>
-                  <p class="text-warning">{{ __('Image Size') . ' : 320x230' }}</p>
+                  {{-- <p class="text-warning">{{ __('Image Size') . ' : 320x230' }}</p> --}}
                 </div>
 
                 <div class="row">
@@ -737,11 +737,26 @@
   @php
     $languages = App\Models\Language::get();
   @endphp
+  @php
+    $session = session('redirect_url');
+  @endphp
+  @if ($session)
+  
+    <script>
+      console.log("{{ $session }}");
+      
+      document.addEventListener('DOMContentLoaded', function() {
+        let url = "{{ $session }}".replace(/&amp;/g, '&');
+        window.location.href = url;
+      });
+    </script>
+  @endif
   <script>
     let languages = "{{ $languages }}";
   </script>
   <script type="text/javascript" src="{{ asset('assets/admin/js/admin-partial.js') }}"></script>
   <script src="{{ asset('assets/admin/js/admin_dropzone.js') }}"></script>
+  
 @endsection
 
 @section('variables')
@@ -752,5 +767,7 @@
 
     var rmvdbUrl = "{{ route('organizer.event.imgdbrmv') }}";
     var loadImgs = "{{ route('organizer.event.images', $event->id) }}";
+    var updateUrl = "{{ route('organizer.event.update') }}";
+    
   </script>
 @endsection

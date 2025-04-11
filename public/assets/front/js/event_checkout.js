@@ -64,7 +64,11 @@ $('#coupon-code').on('keypress', function (event) {
         $("#coupon-code").val('');
         $("#couponReload").load(location.href + " #couponReload");
         if (data.status == 'success') {
-          toastr['success'](data.message);
+          if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+          } else {
+            toastr['success'](data.message);
+          }
         } else {
           toastr['error'](data.message);
         }

@@ -22,6 +22,7 @@ class TicketController extends Controller
 {
   public function index(Request $request)
   {
+    session()->forget('redirect_url');
     $evnt = Event::where('id', $request->event_id)->select('organizer_id')->firstOrFail();
     if (!($evnt) || $evnt->organizer_id != Auth::guard('organizer')->user()->id) {
       return redirect()->route('organizer.dashboard');
