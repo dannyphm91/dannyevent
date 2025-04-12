@@ -62,7 +62,6 @@
                 <div class=" mb-0" id="errpreimg">
 
                 </div>
-                {{-- <p class="text-warning">{{ __('Image Size') . ' 1170x570' }}</p> --}}
               </div>
               <form id="eventForm" action="{{ route('organizer.event_management.store_event') }}" method="POST"
                 enctype="multipart/form-data">
