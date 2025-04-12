@@ -83,7 +83,7 @@
                       <input type="file" class="img-input" name="thumbnail">
                     </div>
                   </div>
-                  <p class="text-warning">{{ __('Image Size : 320x230') }}</p>
+                  {{-- <p class="text-warning">{{ __('Image Size : 320x230') }}</p> --}}
                 </div>
 
                 <div class="row">
