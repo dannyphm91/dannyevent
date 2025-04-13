@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use App\Http\Controllers\Controller;
-use App\Models\Country;
+use Carbon\Carbon;
 use App\Models\Event;
+use App\Models\Country;
+use App\Models\Customer;
+use App\Models\Organizer;
 use App\Models\Event\Coupon;
-use App\Models\Event\EventCategory;
-use App\Models\Event\EventContent;
+use App\Models\Event\Ticket;
+use Illuminate\Http\Request;
+use App\Models\Event\Wishlist;
 use App\Models\Event\EventDates;
 use App\Models\Event\EventImage;
-use App\Models\Event\Ticket;
-use App\Models\Event\Wishlist;
-use App\Models\Organizer;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\Models\Event\EventContent;
+use App\Models\Event\EventCategory;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -132,8 +133,13 @@ class EventController extends Controller
       ->where('events.status', 1)
       ->whereDate('events.end_date_time', '>=', $this->now_date_time)
       ->select('events.*', 'event_contents.title', 'event_contents.description', 'event_contents.city', 'event_contents.state', 'event_contents.country', 'event_contents.address', 'event_contents.zip_code', 'event_contents.slug')
-      ->orderBy('events.id', 'desc')
-      ->paginate(9);
+      ->orderBy('events.id', 'desc');
+     
+    if ($request->filled('organizer_id')) {
+      $events = $events->where('organizer_id', $request->organizer_id)->paginate(9);
+    } else {
+      $events = $events->paginate(9);
+    }
 
     $max = Ticket::max('f_price');
     $min = Ticket::min('f_price');
@@ -216,7 +222,12 @@ class EventController extends Controller
 
 
       $information['related_events'] = $related_events;
-      return view('frontend.event.event-details', $information); //code...
+      if (Auth::guard('organizer')->check()) {
+        $customers = Customer::get();
+        return view('frontend.event.event-details', $information + ['customers' => $customers]); //code...
+      } else {
+        return view('frontend.event.event-details', $information); //code...
+      }
     } catch (\Exception $th) {
       return view('errors.404');
     }

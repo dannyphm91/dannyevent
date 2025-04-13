@@ -46,7 +46,7 @@ class BookingController extends Controller
     $basic = Basic::select('event_guest_checkout_status')->first();
     if ($basic->event_guest_checkout_status == 0 && $request->type != 'guest') {
       // check whether user is logged in or not
-      if (Auth::guard('customer')->check() == false) {
+      if (Auth::guard('customer')->check() == false && Auth::guard('organizer')->check() == false) {
         return redirect()->route('customer.login', ['redirectPath' => 'course_details']);
       }
     }
@@ -281,7 +281,7 @@ class BookingController extends Controller
       $basic  = Basic::where('uniqid', 12345)->select('tax', 'commission')->first();
 
       $booking = Booking::create([
-        'customer_id' => Auth::guard('customer')->user() ? Auth::guard('customer')->user()->id : null,
+        'customer_id' => Auth::guard('customer')->user() ? Auth::guard('customer')->user()->id : Session::get('customer')->id ?? null,
         'booking_id' => uniqid(),
         'fname' => $info['fname'],
         'lname' => $info['lname'],
@@ -316,6 +316,8 @@ class BookingController extends Controller
         'conversation_id' => array_key_exists('conversation_id', $info) ? $info['conversation_id'] : null,
       ]);
       return $booking;
+      // forge customer session
+      Session::forget('customer');
     } catch (\Exception $th) {
     }
   }
