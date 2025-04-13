@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\FrontEnd;
 
-use App\Http\Controllers\Controller;
-use App\Models\BasicSettings\Basic;
-use App\Models\PaymentGateway\OfflineGateway;
-use App\Models\PaymentGateway\OnlineGateway;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Event\EventContent;
+use Carbon\Carbon;
+use App\Models\Event;
+use App\Models\Customer;
+use App\Models\Language;
 use App\Models\Event\Ticket;
 use Illuminate\Http\Request;
-use App\Models\Event;
+use App\Models\Event\EventContent;
+use App\Models\BasicSettings\Basic;
 use App\Models\Event\TicketContent;
-use App\Models\Language;
-use Carbon\Carbon;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use App\Models\PaymentGateway\OnlineGateway;
+use App\Models\PaymentGateway\OfflineGateway;
 
 class CheckOutController extends Controller
 {
@@ -24,7 +25,7 @@ class CheckOutController extends Controller
     $basic = Basic::select('event_guest_checkout_status')->first();
     $event_guest_checkout_status = $basic->event_guest_checkout_status;
     if ($event_guest_checkout_status != 1) {
-      if (!Auth::guard('customer')->user()) {
+      if (!Auth::guard('customer')->user() && !Auth::guard('organizer')->user()) {
         return redirect()->route('customer.login', ['redirectPath' => 'event_checkout']);
       }
     }
@@ -301,9 +302,15 @@ class CheckOutController extends Controller
     Session::put('offline_gateways', $offline_gateways);
     Session::put('event_date', $request->event_date);
     //check customer logged in or not ?
-    if (Auth::guard('customer')->check() == false) {
+    if (Auth::guard('customer')->check() == false && Auth::guard('organizer')->check() == false) {
       return redirect()->route('customer.login', ['redirectPath' => 'event_checkout']);
     }
+    if (Auth::guard('organizer')->check()) {
+      $customer_id = $request->customer_id;
+      $customer = Customer::where('id', $customer_id)->first();
+      Session::put('customer', $customer);
+    }
+
     return redirect()->route('check-out');
   }
   public function checkout()
@@ -319,7 +326,9 @@ class CheckOutController extends Controller
     $stripe = OnlineGateway::where('keyword', 'stripe')->first();
     $stripe_info = json_decode($stripe->information, true);
     $information['stripe_key'] = $stripe_info['key'];
-
+    if (Auth::guard('organizer')->check()) {
+      $information['customer'] = Session::get('customer');
+    }
     return view('frontend.check-out', $information);
   }
 }

@@ -24,7 +24,7 @@
   </section>
   <!-- Page Banner End -->
   @php
-    $authUser = Auth::guard('customer')->user();
+    $authUser = Auth::guard('customer')->user() ?? Session::get('customer');
   @endphp
 @endsection
 @section('content')
@@ -127,7 +127,7 @@
               </div>
               <div class="col-sm-12">
                 <label for="">{{ __('Address') }} * </label>
-                <textarea name="address" class="form_control" cols="2" rows="3" placeholder="{{ __('Address') }}">{{ old('address', $authUser != null ? $authUser->address : '') }}</textarea>
+                <input type="text" name="address" class="form_control" cols="2" rows="3" placeholder="{{ __('Address') }}" value="{{ old('address', $authUser != null ? $authUser->address : '') }}" />
                 @error('address')
                   <p class="text-danger">{{ $message }}</p>
                 @enderror
