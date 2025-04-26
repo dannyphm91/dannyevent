@@ -10,6 +10,13 @@ use App\Models\Customer;
 use App\Models\BasicSettings\Basic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Event\EventContent;
+use App\Models\Language;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\BookingMail;
 
 class EventBookingController extends Controller
 {
@@ -37,16 +44,16 @@ class EventBookingController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'event_id' => 'required|exists:events,id',
-            'customer_id' => 'required|exists:customers,id',
-            'ticket_id' => 'required|exists:tickets,id',
-            'quantity' => 'required|integer|min:1',
-            'payment_status' => 'required|in:pending,completed',
-            'payment_method' => 'required|in:offline,cash,bank'
-        ]);
+        // $request->validate([
+        //     'event_id' => 'required|exists:events,id',
+        //     'customer_id' => 'required|exists:customers,id',
+        //     'ticket_id' => 'required|exists:tickets,id',
+        //     'quantity' => 'required|integer|min:1',
+        //     'payment_status' => 'required|in:pending,completed',
+        //     'payment_method' => 'required|in:offline,cash,bank'
+        // ]);
 
-        try {
+        // try {
             // Get ticket and calculate price
             $ticket = Ticket::findOrFail($request->ticket_id);
             $event = Event::findOrFail($request->event_id);
@@ -138,13 +145,64 @@ class EventBookingController extends Controller
                 $ticket->save();
             }
 
+            // Generate invoice
+            $invoice = $this->generateInvoice($booking, $event->id);
+            $booking->update(['invoice' => $invoice]);
+
+            //send mail
+            Mail::to($customer->email)->send(new BookingMail($booking));
+
             return redirect()->route('organizer.event.booking')
                 ->with('success', 'Booking created successfully.');
 
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Something went wrong! Please try again.');
-        }
+        // } catch (\Exception $e) {
+        //     return redirect()->back()
+        //         ->with('error', 'Something went wrong! Please try again.');
+        // }
+    }
+
+    public function generateInvoice($bookingInfo, $eventId)
+    {
+        // try {
+            $fileName = $bookingInfo->booking_id . '.pdf';
+            $directory = public_path('assets/admin/file/invoices/');
+
+            @mkdir($directory, 0775, true);
+
+            $fileLocated = $directory . $fileName;
+
+            //generate qr code
+            @mkdir(public_path('assets/admin/qrcodes/'), 0775, true);
+            if ($bookingInfo->variation != null) {
+                //generate qr code for without wise ticket
+                $variations = json_decode($bookingInfo->variation, true);
+                foreach ($variations as $variation) {
+                    QrCode::size(200)->generate($bookingInfo->booking_id . '__' . $variation['unique_id'], public_path('assets/admin/qrcodes/') . $bookingInfo->booking_id . '__' . $variation['unique_id'] . '.svg');
+                }
+            } else {
+                //generate qr code for without wise ticket
+                for ($i = 1; $i <= $bookingInfo->quantity; $i++) {
+                    QrCode::size(200)->generate($bookingInfo->booking_id . '__' . $i, public_path('assets/admin/qrcodes/') . $bookingInfo->booking_id . '__' . $i . '.svg');
+                }
+            }
+
+            // get course title
+            $language = Language::where('is_default', 1)->first();
+            $event = Event::find($bookingInfo->event_id);
+            $eventInfo = EventContent::where('event_id', $bookingInfo->event_id)->where('language_id', $language->id)->first();
+
+            $width = "50%";
+            $float = "right";
+            $mb = "35px";
+            $ml = "18px";
+
+            PDF::loadView('frontend.event.invoice', compact('bookingInfo', 'event', 'eventInfo', 'width', 'float', 'mb', 'ml', 'language'))->save($fileLocated);
+
+            return $fileName;
+        // } catch (\Exception $e) {
+        //     Session::flash('error', $e->getMessage());
+        //     return;
+        // }
     }
 
     public function getTickets(Request $request)
