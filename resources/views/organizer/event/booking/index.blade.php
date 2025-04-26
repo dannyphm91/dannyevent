@@ -57,7 +57,7 @@
         <div class="card-header">
           <div class="row">
             <div class="col-lg-3">
-              <div class="card-title">{{ __('Event Booking') }}  <a href="/events?organizer_id={{ Auth::guard('organizer')->user()->id }}"  target="_blank" class="btn btn-primary btn-sm float-right text-white">{{ __('Add New Booking') }}</a></div>
+              <div class="card-title">{{ __('Event Booking') }}  <a href="{{ route('organizer.event.booking.create') }}" class="btn btn-primary btn-sm float-right text-white">{{ __('Add New Booking') }}</a></div>
             </div>
 
             <div class="col-lg-9">
