@@ -322,3 +322,11 @@ Route::get('/{slug}', 'FrontEnd\PageController@page')->name('dynamic_page')->mid
 Route::fallback(function () {
   return view('errors.404');
 })->middleware('change.lang');
+
+// Organizer Event Booking Routes
+Route::group(['middleware' => ['auth:organizer'], 'prefix' => 'organizer', 'as' => 'organizer.'], function () {
+    Route::get('event/booking', 'App\Http\Controllers\Organizer\EventBookingController@index')->name('event.booking');
+    Route::get('event/booking/create', 'App\Http\Controllers\Organizer\EventBookingController@create')->name('event.booking.create');
+    Route::post('event/booking/store', 'App\Http\Controllers\Organizer\EventBookingController@store')->name('event.booking.store');
+    Route::get('event/tickets', 'App\Http\Controllers\Organizer\EventBookingController@getTickets')->name('event.tickets');
+});

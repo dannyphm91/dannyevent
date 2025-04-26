@@ -5,6 +5,7 @@ namespace App\Models\Event;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Event\TicketVariation;
+use App\Models\Event\TicketContent;
 
 class Ticket extends Model
 {
@@ -35,5 +36,10 @@ class Ticket extends Model
   public function ticket_variations()
   {
     return $this->hasMany(TicketVariation::class);
+  }
+
+  public function ticketContent()
+  {
+    return $this->hasMany(TicketContent::class, 'ticket_id');
   }
 }
