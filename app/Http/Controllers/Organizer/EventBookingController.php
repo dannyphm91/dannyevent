@@ -45,41 +45,7 @@ class EventBookingController extends Controller
 
     public function create()
     {
-        // try {
-        //     $sid = config('services.twilio.sid');
-        //     $token = config('services.twilio.auth_token');
-        //     $from = config('services.twilio.phone_number');
-    
-        //     $twilio = new \Twilio\Rest\Client($sid, $token);
-            
-        //     // Try to fetch account info to verify credentials
-        //     $account = $twilio->api->accounts($sid)->fetch();
-            
-        //     return response()->json([
-        //         'status' => 'success',
-        //         'account' => [
-        //             'sid' => $account->sid,
-        //             'friendly_name' => $account->friendlyName,
-        //             'status' => $account->status,
-        //             'type' => $account->type
-        //         ],
-        //         'config' => [
-        //             'sid' => $sid,
-        //             'token_length' => strlen($token),
-        //             'phone' => $from
-        //         ]
-        //     ]);
-        // } catch (\Exception $e) {
-        //     return response()->json([
-        //         'status' => 'error',
-        //         'message' => $e->getMessage(),
-        //         'config' => [
-        //             'sid' => config('services.twilio.sid'),
-        //             'token_length' => strlen(config('services.twilio.auth_token')),
-        //             'phone' => config('services.twilio.phone_number')
-        //         ]
-        //     ], 500);
-        // }
+       
         $events = Event::with('information')
             ->where('organizer_id', Auth::id())
             ->get();
