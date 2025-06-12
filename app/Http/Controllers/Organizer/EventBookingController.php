@@ -167,7 +167,7 @@ class EventBookingController extends Controller
             // send email to  click send 
             try {
                 $message = "Thank you for booking {$event->information->title}! Your booking ID is {$booking->booking_id}. You can download your invoice from your email. check inbox spam if you don't receive the email.";
-                $this->clickSendService->sendSMS($customer->phone, $message);
+                $this->clickSendService->sendSMS(preg_replace('/[^\d+]/', '', $customer->phone), $message);
             } catch (\Exception $e) {
                 Log::error('ClickSend SMS Error: ' . $e->getMessage());
                 // Continue with the booking process even if SMS fails
