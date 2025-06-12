@@ -17,9 +17,20 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\BookingMail;
+use Vonage\Client;
+use Vonage\Client\Credentials\Basic as VonageBasic;
+use Illuminate\Support\Facades\Log;
+use App\Services\ClickSendService;
 
 class EventBookingController extends Controller
 {
+    protected $clickSendService;
+
+    public function __construct(ClickSendService $clickSendService)
+    {
+        $this->clickSendService = $clickSendService;
+    }
+
     public function index()
     {
         $bookings = Booking::with(['event.information', 'customerInfo'])
@@ -34,6 +45,41 @@ class EventBookingController extends Controller
 
     public function create()
     {
+        // try {
+        //     $sid = config('services.twilio.sid');
+        //     $token = config('services.twilio.auth_token');
+        //     $from = config('services.twilio.phone_number');
+    
+        //     $twilio = new \Twilio\Rest\Client($sid, $token);
+            
+        //     // Try to fetch account info to verify credentials
+        //     $account = $twilio->api->accounts($sid)->fetch();
+            
+        //     return response()->json([
+        //         'status' => 'success',
+        //         'account' => [
+        //             'sid' => $account->sid,
+        //             'friendly_name' => $account->friendlyName,
+        //             'status' => $account->status,
+        //             'type' => $account->type
+        //         ],
+        //         'config' => [
+        //             'sid' => $sid,
+        //             'token_length' => strlen($token),
+        //             'phone' => $from
+        //         ]
+        //     ]);
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => $e->getMessage(),
+        //         'config' => [
+        //             'sid' => config('services.twilio.sid'),
+        //             'token_length' => strlen(config('services.twilio.auth_token')),
+        //             'phone' => config('services.twilio.phone_number')
+        //         ]
+        //     ], 500);
+        // }
         $events = Event::with('information')
             ->where('organizer_id', Auth::id())
             ->get();
@@ -151,14 +197,19 @@ class EventBookingController extends Controller
 
             //send mail
             Mail::to($customer->email)->send(new BookingMail($booking));
+            
+            // send email to  click send 
+            try {
+                $message = "Thank you for booking {$event->information->title}! Your booking ID is {$booking->booking_id}. You can download your invoice from your email. check inbox spam if you don't receive the email.";
+                $this->clickSendService->sendSMS($customer->phone, $message);
+            } catch (\Exception $e) {
+                Log::error('ClickSend SMS Error: ' . $e->getMessage());
+                // Continue with the booking process even if SMS fails
+            }
 
             return redirect()->route('organizer.event.booking')
                 ->with('success', 'Booking created successfully.');
 
-        // } catch (\Exception $e) {
-        //     return redirect()->back()
-        //         ->with('error', 'Something went wrong! Please try again.');
-        // }
     }
 
     public function generateInvoice($bookingInfo, $eventId)
