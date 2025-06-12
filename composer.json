@@ -33,9 +33,7 @@
     "phpmailer/phpmailer": "^6.4",
     "razorpay/razorpay": "2.*",
     "simplesoftwareio/simple-qrcode": "~4",
-    "spatie/laravel-cookie-consent": "^3.2.0",
-    "twilio/sdk": "^8.5",
-    "vonage/client": "^4.1"
+    "spatie/laravel-cookie-consent": "^3.2.0"
   },
   "require-dev": {
     "spatie/laravel-ignition": "^1.0",
