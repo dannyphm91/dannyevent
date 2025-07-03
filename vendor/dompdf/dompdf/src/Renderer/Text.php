@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @package dompdf
  * @link    http://dompdf.github.com/
@@ -8,10 +7,8 @@
  * @author  Fabien Ménager <fabien.menager@gmail.com>
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
-
 namespace Dompdf\Renderer;
 
-use App\Libraries\I18N\I18N_Arabic;
 use Dompdf\Adapter\CPDF;
 use Dompdf\Frame;
 
@@ -84,21 +81,9 @@ class Text extends AbstractRenderer
           $text
         );*/
 
-        if (strtolower($style->direction) == 'rtl') {
-            $Arabic = new I18N_Arabic('Glyphs');
-            $text = $Arabic->utf8Glyphs($text);
-        }
-
-        $this->_canvas->text(
-            $x,
-            $y,
-            $text,
-            $font,
-            $size,
-            $style->color,
-            $word_spacing,
-            $char_spacing
-        );
+        $this->_canvas->text($x, $y, $text,
+            $font, $size,
+            $style->color, $word_spacing, $char_spacing);
 
         $line = $frame->get_containing_line();
 

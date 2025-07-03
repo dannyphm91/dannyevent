@@ -6,13 +6,13 @@
 
 @section('title')
     <i class="fa fa-cog fa-fw" aria-hidden="true"></i>
-    {{ trans('installer_messages.environment.menu.title') }}
+    {!! trans('installer_messages.environment.menu.title') !!}
 @endsection
 
 @section('container')
 
     <p class="text-center">
-        {{ trans('installer_messages.environment.menu.desc') }}
+        {!! trans('installer_messages.environment.menu.desc') !!}
     </p>
     <div class="buttons">
         <a href="{{ route('LaravelInstaller::environmentWizard') }}" class="button button-wizard">

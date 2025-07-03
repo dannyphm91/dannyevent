@@ -83,7 +83,7 @@ class Purifier
      *
      * @return HTMLPurifier_Config $configObject
      */
-    private function addCustomDefinition(array $definitionConfig, HTMLPurifier_Config $configObject = null)
+    private function addCustomDefinition(array $definitionConfig, ?HTMLPurifier_Config $configObject = null)
     {
         if (!$configObject) {
             $configObject = HTMLPurifier_Config::createDefault();
@@ -189,14 +189,17 @@ class Purifier
         $cachePath = $this->config->get('purifier.cachePath');
 
         if ($cachePath) {
-            if (!$this->files->isDirectory($cachePath)) {
-                $this->files->makeDirectory($cachePath, $this->config->get('purifier.cacheFileMode', 0755),true);
-            }
+            $this->files->makeDirectory(
+                $cachePath,
+                $this->config->get('purifier.cacheFileMode', 0755),
+                true,
+                true
+            );
         }
     }
 
     /**
-     * @param null $config
+     * @param array<string, mixed>|string|null $config
      *
      * @return mixed|null
      */
@@ -256,11 +259,11 @@ class Purifier
 
     /**
      * @param      $dirty
-     * @param null $config
+     * @param array<string, mixed>|string|null $config
      * @param \Closure|null $postCreateConfigHook
      * @return mixed
      */
-    public function clean($dirty, $config = null, \Closure $postCreateConfigHook = null)
+    public function clean($dirty, $config = null, ?\Closure $postCreateConfigHook = null)
     {
         if (is_array($dirty)) {
             return array_map(function ($item) use ($config) {

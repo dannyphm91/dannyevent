@@ -10,7 +10,9 @@ use Spatie\GoogleCalendar\Event;
 */
 
 Route::get('/offline', 'FrontEnd\HomeController@offline');
-
+Route::get('/terms-and-conditions', function () {
+    return view('frontend.terms-and-conditions');
+});
 Route::get('login', function () {
   return view('frontend.organizer.login');
 })->name('login');
@@ -329,4 +331,13 @@ Route::group(['middleware' => ['auth:organizer'], 'prefix' => 'organizer', 'as' 
     Route::get('event/booking/create', 'App\Http\Controllers\Organizer\EventBookingController@create')->name('event.booking.create');
     Route::post('event/booking/store', 'App\Http\Controllers\Organizer\EventBookingController@store')->name('event.booking.store');
     Route::get('event/tickets', 'App\Http\Controllers\Organizer\EventBookingController@getTickets')->name('event.tickets');
+    
+    // Customer Management
+    Route::post('customer/store', 'Organizer\CustomerController@store')->name('customer.store');
 });
+
+Route::post('/send-sms', 'SMSController@sendSMS')->name('send.sms');
+
+
+
+

@@ -59,6 +59,7 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
         foreach ($container->findTaggedServiceIds('controller.service_arguments', true) as $id => $tags) {
             $def = $container->getDefinition($id);
             $def->setPublic(true);
+            $def->setLazy(false);
             $class = $def->getClass();
             $autowire = $def->isAutowired();
             $bindings = $def->getBindings();
@@ -158,7 +159,7 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
                         continue;
                     } elseif (!$autowire || (!($autowireAttributes ??= $p->getAttributes(Autowire::class, \ReflectionAttribute::IS_INSTANCEOF)) && (!$type || '\\' !== $target[0]))) {
                         continue;
-                    } elseif (is_subclass_of($type, \UnitEnum::class)) {
+                    } elseif (!$autowireAttributes && is_subclass_of($type, \UnitEnum::class)) {
                         // do not attempt to register enum typed arguments if not already present in bindings
                         continue;
                     } elseif (!$p->allowsNull()) {

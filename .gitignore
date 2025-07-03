@@ -1,2 +1,4 @@
 public/assets/admin/img/*
 .env
+public/assets/admin/*
+vendor

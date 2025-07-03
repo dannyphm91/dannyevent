@@ -1,6 +1,43 @@
 @extends('organizer.layout')
 
 @section('content')
+<<<<<<< HEAD
+=======
+<style>
+.customer-selection-wrapper {
+  display: flex;
+  align-items-end;
+  gap: 10px;
+}
+
+.customer-select-container {
+  flex: 1;
+}
+
+.customer-btn-container {
+  flex-shrink: 0;
+}
+
+.error-text {
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.modal-lg {
+  max-width: 800px;
+}
+
+#createCustomerModal .form-group {
+  margin-bottom: 1rem;
+}
+
+#createCustomerModal label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+</style>
+
+>>>>>>> 3ffe933778e70ed78ff7578c224db97e7b9eed6e
 <div class="page-header">
   <h4 class="page-title">{{ __('Create New Booking') }}</h4>
   <ul class="breadcrumbs">
@@ -58,12 +95,30 @@
             <div class="col-lg-6">
               <div class="form-group">
                 <label>{{ __('Select Customer') }} *</label>
+<<<<<<< HEAD
                 <select name="customer_id" class="form-control select2" required>
                   <option value="">{{ __('Select a Customer') }}</option>
                   @foreach($customers as $customer)
                     <option value="{{ $customer->id }}">{{ $customer->fname }} {{ $customer->lname }} ({{ $customer->email }})</option>
                   @endforeach
                 </select>
+=======
+                <div class="customer-selection-wrapper">
+                  <div class="customer-select-container">
+                    <select name="customer_id" id="customer_select" class="form-control select2" required>
+                      <option value="">{{ __('Select a Customer') }}</option>
+                      @foreach($customers as $customer)
+                        <option value="{{ $customer->id }}">{{ $customer->fname }} {{ $customer->lname }} ({{ $customer->email }})</option>
+                      @endforeach
+                    </select>
+                  </div>
+                  <div class="customer-btn-container">
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#createCustomerModal">
+                      <i class="fas fa-user-plus"></i> {{ __('New') }}
+                    </button>
+                  </div>
+                </div>
+>>>>>>> 3ffe933778e70ed78ff7578c224db97e7b9eed6e
                 @error('customer_id')
                   <p class="text-danger mb-0">{{ $message }}</p>
                 @enderror
@@ -224,4 +279,187 @@ $(document).ready(function() {
     console.log('Event select clicked');
   });
 });
+<<<<<<< HEAD
 </script>
+=======
+
+// AJAX Customer Creation
+$(document).ready(function() {
+  $('#saveCustomerBtn').click(function() {
+    let formData = new FormData($('#createCustomerForm')[0]);
+    
+    // Clear previous errors
+    $('.error-text').text('');
+    
+    // Show loading state
+    $(this).prop('disabled', true).text('{{ __("Creating...") }}');
+    
+    $.ajax({
+      url: '{{ route("organizer.customer.store") }}',
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function(response) {
+        console.log('Success response:', response);
+        if(response.status === 'success') {
+          // Add new customer to select dropdown
+          let customerText = response.customer.fname + ' ' + response.customer.lname + ' (' + response.customer.email + ')';
+          let newOption = new Option(customerText, response.customer.id, true, true);
+          
+          // Clear existing selection and add new option
+          $('#customer_select').append(newOption);
+          
+          // Reinitialize Select2 and trigger change
+          $('#customer_select').val(response.customer.id).trigger('change');
+          
+          // Close modal and reset form
+          $('#createCustomerModal').modal('hide');
+          $('#createCustomerForm')[0].reset();
+          
+          // Show success message
+          alert('{{ __("Customer created successfully!") }}');
+        } else {
+          console.error('Unexpected response format:', response);
+          alert('{{ __("An error occurred. Please try again.") }}');
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error('AJAX Error:', {
+          status: xhr.status,
+          statusText: xhr.statusText,
+          responseText: xhr.responseText,
+          error: error
+        });
+        
+        if(xhr.status === 422) {
+          let errors = xhr.responseJSON.errors;
+          $.each(errors, function(key, value) {
+            $('.' + key + '_error').text(value[0]);
+          });
+        } else if(xhr.status === 500) {
+          console.error('Server error:', xhr.responseText);
+          alert('{{ __("Server error occurred. Please check your input and try again.") }}');
+        } else {
+          alert('{{ __("An error occurred. Please try again.") }}');
+        }
+      },
+      complete: function() {
+        $('#saveCustomerBtn').prop('disabled', false).text('{{ __("Create Customer") }}');
+      }
+    });
+  });
+  
+  // Reset form and errors when modal is closed
+  $('#createCustomerModal').on('hidden.bs.modal', function() {
+    $('#createCustomerForm')[0].reset();
+    $('.error-text').text('');
+  });
+});
+</script>
+
+<!-- Create Customer Modal -->
+<div class="modal fade" id="createCustomerModal" tabindex="-1" role="dialog" aria-labelledby="createCustomerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createCustomerModalLabel">{{ __('Create New Customer') }}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="createCustomerForm">
+          @csrf
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>{{ __('First Name') }} *</label>
+                <input type="text" name="fname" class="form-control" required>
+                <span class="text-danger error-text fname_error"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>{{ __('Last Name') }} *</label>
+                <input type="text" name="lname" class="form-control" required>
+                <span class="text-danger error-text lname_error"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>{{ __('Email') }} *</label>
+                <input type="email" name="email" class="form-control" required>
+                <span class="text-danger error-text email_error"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>{{ __('Username') }} *</label>
+                <input type="text" name="username" class="form-control" required>
+                <span class="text-danger error-text username_error"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>{{ __('Phone') }}</label>
+                <input type="text" name="phone" class="form-control">
+                <span class="text-danger error-text phone_error"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>{{ __('Password') }} *</label>
+                <input type="password" name="password" class="form-control" required>
+                <span class="text-danger error-text password_error"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>{{ __('Confirm Password') }} *</label>
+                <input type="password" name="password_confirmation" class="form-control" required>
+                <span class="text-danger error-text password_confirmation_error"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>{{ __('Address') }}</label>
+                <input type="text" name="address" class="form-control">
+                <span class="text-danger error-text address_error"></span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>{{ __('Country') }}</label>
+                <input type="text" name="country" class="form-control">
+                <span class="text-danger error-text country_error"></span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>{{ __('State') }}</label>
+                <input type="text" name="state" class="form-control">
+                <span class="text-danger error-text state_error"></span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>{{ __('City') }}</label>
+                <input type="text" name="city" class="form-control">
+                <span class="text-danger error-text city_error"></span>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+        <button type="button" class="btn btn-primary" id="saveCustomerBtn">{{ __('Create Customer') }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section('custom-script')
+</code_block_to_apply_changes_from>
+>>>>>>> 3ffe933778e70ed78ff7578c224db97e7b9eed6e
