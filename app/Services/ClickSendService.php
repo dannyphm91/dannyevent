@@ -7,6 +7,7 @@ use ClickSend\Configuration;
 use ClickSend\Model\SmsMessage;
 use ClickSend\Model\SmsMessageCollection;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 
 class ClickSendService
 {
@@ -35,7 +36,7 @@ class ClickSendService
             $result = $this->apiInstance->smsSendPost($sms_messages);
             return $result;
         } catch (\Exception $e) {
-            \Log::error('ClickSend SMS Error: ' . $e->getMessage());
+            Log::error('ClickSend SMS Error: ' . $e->getMessage());
             throw $e;
         }
     }
