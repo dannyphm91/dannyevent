@@ -1,43 +1,6 @@
 @extends('organizer.layout')
 
 @section('content')
-<<<<<<< HEAD
-=======
-<style>
-.customer-selection-wrapper {
-  display: flex;
-  align-items-end;
-  gap: 10px;
-}
-
-.customer-select-container {
-  flex: 1;
-}
-
-.customer-btn-container {
-  flex-shrink: 0;
-}
-
-.error-text {
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-.modal-lg {
-  max-width: 800px;
-}
-
-#createCustomerModal .form-group {
-  margin-bottom: 1rem;
-}
-
-#createCustomerModal label {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-</style>
-
->>>>>>> 3ffe933778e70ed78ff7578c224db97e7b9eed6e
 <div class="page-header">
   <h4 class="page-title">{{ __('Create New Booking') }}</h4>
   <ul class="breadcrumbs">
@@ -95,14 +58,6 @@
             <div class="col-lg-6">
               <div class="form-group">
                 <label>{{ __('Select Customer') }} *</label>
-<<<<<<< HEAD
-                <select name="customer_id" class="form-control select2" required>
-                  <option value="">{{ __('Select a Customer') }}</option>
-                  @foreach($customers as $customer)
-                    <option value="{{ $customer->id }}">{{ $customer->fname }} {{ $customer->lname }} ({{ $customer->email }})</option>
-                  @endforeach
-                </select>
-=======
                 <div class="customer-selection-wrapper">
                   <div class="customer-select-container">
                     <select name="customer_id" id="customer_select" class="form-control select2" required>
@@ -118,7 +73,6 @@
                     </button>
                   </div>
                 </div>
->>>>>>> 3ffe933778e70ed78ff7578c224db97e7b9eed6e
                 @error('customer_id')
                   <p class="text-danger mb-0">{{ $message }}</p>
                 @enderror
@@ -279,9 +233,6 @@ $(document).ready(function() {
     console.log('Event select clicked');
   });
 });
-<<<<<<< HEAD
-</script>
-=======
 
 // AJAX Customer Creation
 $(document).ready(function() {
@@ -462,4 +413,3 @@ $(document).ready(function() {
 
 @section('custom-script')
 </code_block_to_apply_changes_from>
->>>>>>> 3ffe933778e70ed78ff7578c224db97e7b9eed6e

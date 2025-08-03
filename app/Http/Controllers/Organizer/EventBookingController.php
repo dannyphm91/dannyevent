@@ -17,11 +17,6 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\BookingMail;
-<<<<<<< HEAD
-
-class EventBookingController extends Controller
-{
-=======
 use Vonage\Client;
 use Vonage\Client\Credentials\Basic as VonageBasic;
 use Illuminate\Support\Facades\Log;
@@ -36,7 +31,6 @@ class EventBookingController extends Controller
         $this->clickSendService = $clickSendService;
     }
 
->>>>>>> 3ffe933778e70ed78ff7578c224db97e7b9eed6e
     public function index()
     {
         $bookings = Booking::with(['event.information', 'customerInfo'])
@@ -51,10 +45,7 @@ class EventBookingController extends Controller
 
     public function create()
     {
-<<<<<<< HEAD
-=======
        
->>>>>>> 3ffe933778e70ed78ff7578c224db97e7b9eed6e
         $events = Event::with('information')
             ->where('organizer_id', Auth::id())
             ->get();
@@ -172,8 +163,6 @@ class EventBookingController extends Controller
 
             //send mail
             Mail::to($customer->email)->send(new BookingMail($booking));
-<<<<<<< HEAD
-=======
             
             // send email to  click send 
             try {
@@ -183,18 +172,10 @@ class EventBookingController extends Controller
                 Log::error('ClickSend SMS Error: ' . $e->getMessage());
                 // Continue with the booking process even if SMS fails
             }
->>>>>>> 3ffe933778e70ed78ff7578c224db97e7b9eed6e
 
             return redirect()->route('organizer.event.booking')
                 ->with('success', 'Booking created successfully.');
 
-<<<<<<< HEAD
-        // } catch (\Exception $e) {
-        //     return redirect()->back()
-        //         ->with('error', 'Something went wrong! Please try again.');
-        // }
-=======
->>>>>>> 3ffe933778e70ed78ff7578c224db97e7b9eed6e
     }
 
     public function generateInvoice($bookingInfo, $eventId)
